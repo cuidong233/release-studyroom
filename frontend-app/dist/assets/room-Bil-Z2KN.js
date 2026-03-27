@@ -1,0 +1,1 @@
+import{s as r}from"./request-B6tLDgt9.js";const a=o=>r.get("/admin-api/studyroom/room/page",{params:o}),e=o=>r.post("/admin-api/studyroom/room/create",o),m=o=>r.post("/admin-api/studyroom/room/join",o),s=o=>r.post("/admin-api/studyroom/room/leave",o);export{e as c,a as g,m as j,s as l};

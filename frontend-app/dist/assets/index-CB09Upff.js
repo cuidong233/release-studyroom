@@ -1,0 +1,1 @@
+import{s as e}from"./request-B6tLDgt9.js";const p=r=>e.post("/app-api/member/auth/login",r),s=r=>e.post("/app-api/member/auth/register",r),o=(r,t)=>e.put("/app-api/member/auth/update-password",{oldPassword:r,newPassword:t});export{p as l,s as r,o as u};

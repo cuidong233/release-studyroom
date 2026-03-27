@@ -1,0 +1,1 @@
+import{s as e}from"./request-B6tLDgt9.js";function o(){return e({url:"/admin-api/studyroom/profile/get",method:"get"})}function i(r){return e({url:"/admin-api/studyroom/profile/update",method:"put",data:r})}export{o as g,i as u};
