@@ -7,6 +7,25 @@
 -- 可重复执行，已使用 NOT EXISTS / ON DUPLICATE KEY 避免重复
 -- ============================================================
 
+-- 0) 数据库与本地联调账号
+-- ------------------------------------------------------------
+CREATE DATABASE IF NOT EXISTS `ruoyi_vue_pro_studyroom`
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+USE `ruoyi_vue_pro_studyroom`;
+
+-- 为 backend/application-dev.yaml 默认配置补齐本地账号
+CREATE USER IF NOT EXISTS 'study'@'localhost' IDENTIFIED BY 'hyh123';
+CREATE USER IF NOT EXISTS 'study'@'127.0.0.1' IDENTIFIED BY 'hyh123';
+
+ALTER USER IF EXISTS 'study'@'localhost' IDENTIFIED BY 'hyh123';
+ALTER USER IF EXISTS 'study'@'127.0.0.1' IDENTIFIED BY 'hyh123';
+
+GRANT ALL PRIVILEGES ON `ruoyi_vue_pro_studyroom`.* TO 'study'@'localhost';
+GRANT ALL PRIVILEGES ON `ruoyi_vue_pro_studyroom`.* TO 'study'@'127.0.0.1';
+FLUSH PRIVILEGES;
+
 -- 1) 自习室业务表
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `study_room` (

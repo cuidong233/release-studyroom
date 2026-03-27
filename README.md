@@ -44,15 +44,19 @@ release-studyroom/
 
 ### 1. 初始化数据库
 
-1. 创建数据库：`ruoyi_vue_pro_studyroom`
-2. 字符集建议使用：`utf8mb4`
-3. 导入 SQL：
+1. 直接导入初始化 SQL：
 
 ```bash
-mysql -u root -p ruoyi_vue_pro_studyroom < sql/studyroom-init.sql
+mysql -u root -p < sql/studyroom-init.sql
 ```
 
-如果你不使用 `root`，请换成自己的数据库账号。
+这个脚本现在会自动：
+
+- 创建数据库 `ruoyi_vue_pro_studyroom`
+- 设置字符集为 `utf8mb4`
+- 创建并授权本地默认账号 `study / hyh123`
+
+如果你不使用 `root`，请确认当前导入账号具备 `CREATE USER` 和 `GRANT` 权限；否则需要手动执行账号授权语句，或改掉 `backend/application-dev.yaml` 里的数据库账号密码。
 
 ### 2. 启动后端
 
