@@ -113,11 +113,29 @@ PORT=10098 ./run.sh
 
 如果你需要修改后端域名或端口：
 
-1. 修改前端项目对应的环境变量配置
-2. 重新执行前端构建
-3. 再替换 `dist` 目录
+1. 直接修改前端静态包里的运行时配置文件：
+   - `frontend-admin/dist/config.js`
+   - `frontend-app/dist/config.js`
+2. 调整其中的 `apiBase` / `adminApiBase` / `appApiBase`
+3. 无需重新构建，刷新页面即可生效
 
 仅修改静态文件服务端口 `9998`、`9999` 不会影响接口请求；修改后端端口则需要确保前端打包配置同步更新。
+
+示例：
+
+```js
+window.__STUDYROOM_RUNTIME__ = {
+  apiBase: "http://127.0.0.1:48080"
+};
+```
+
+如果你通过同域反向代理暴露后端，也可以改成：
+
+```js
+window.__STUDYROOM_RUNTIME__ = {
+  apiBase: ""
+};
+```
 
 ## 包内容说明
 
