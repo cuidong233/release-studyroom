@@ -139,6 +139,10 @@ wx: # 参见 https://github.com/Wechat-Group/WxJava/blob/develop/spring-boot-sta
 
 # 芋道配置项，设置当前项目所有自定义的配置
 yudao:
+  captcha:
+    enable: false
+  tenant:
+    enable: false
   pay:
     order-notify-url: http://127.0.0.1:${server.port}/admin-api/pay/notify/order
     refund-notify-url: http://127.0.0.1:${server.port}/admin-api/pay/notify/refund
