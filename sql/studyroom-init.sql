@@ -230,9 +230,9 @@ WHERE sr.name = '夜读交流室'
 
 -- 3) 后台菜单与权限（目录 + 菜单 + 按钮）
 -- ------------------------------------------------------------
--- 根目录：自习室
+-- 根目录：自习室管理
 INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `sort`, `parent_id`, `path`, `icon`, `component`, `component_name`, `status`, `visible`, `keep_alive`, `always_show`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
-SELECT 6000, '自习室', '', 1, 10, 0, '/studyroom', 'ep:office-building', 'Layout', 'StudyRoom', 0, b'1', b'1', b'1', 'admin', NOW(), 'admin', NOW(), b'0'
+SELECT 6000, '自习室管理', '', 1, 10, 0, '/studyroom', 'ep:office-building', 'Layout', 'StudyRoom', 0, b'1', b'1', b'1', 'admin', NOW(), 'admin', NOW(), b'0'
 WHERE NOT EXISTS (SELECT 1 FROM `system_menu` WHERE id = 6000);
 
 -- 自习室子菜单
@@ -241,19 +241,19 @@ SELECT 6001, '自习室大厅', 'studyroom:room:query', 2, 10, 6000, 'hall', 'ep
 WHERE NOT EXISTS (SELECT 1 FROM `system_menu` WHERE id = 6001);
 
 INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `sort`, `parent_id`, `path`, `icon`, `component`, `component_name`, `status`, `visible`, `keep_alive`, `always_show`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
-SELECT 6002, '学习统计', 'studyroom:statistics:query', 2, 20, 6000, 'statistics', 'ep:data-analysis', 'studyroom/statistics/index', 'StudyStatistics', 0, b'1', b'1', b'0', 'admin', NOW(), 'admin', NOW(), b'0'
+SELECT 6002, '学习统计', 'studyroom:statistics:query', 2, 20, 6000, 'statistics', 'ep:data-analysis', 'studyroom/statistics/index', 'StudyStatistics', 0, b'1', b'1', b'0', 'admin', NOW(), 'admin', NOW(), b'1'
 WHERE NOT EXISTS (SELECT 1 FROM `system_menu` WHERE id = 6002);
 
 INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `sort`, `parent_id`, `path`, `icon`, `component`, `component_name`, `status`, `visible`, `keep_alive`, `always_show`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
-SELECT 6003, '座位预约', 'studyroom:reservation:list', 2, 30, 6000, 'reservation', 'ep:ticket', 'studyroom/reservation/index', 'SeatReservation', 0, b'1', b'1', b'0', 'admin', NOW(), 'admin', NOW(), b'0'
+SELECT 6003, '座位预约', 'studyroom:reservation:list', 2, 30, 6000, 'reservation', 'ep:ticket', 'studyroom/reservation/index', 'SeatReservation', 0, b'1', b'1', b'0', 'admin', NOW(), 'admin', NOW(), b'1'
 WHERE NOT EXISTS (SELECT 1 FROM `system_menu` WHERE id = 6003);
 
 INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `sort`, `parent_id`, `path`, `icon`, `component`, `component_name`, `status`, `visible`, `keep_alive`, `always_show`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
-SELECT 6004, '自习室管理', 'studyroom:manage:query', 2, 40, 6000, 'manage', 'ep:setting', 'studyroom/manage/index', 'StudyRoomManage', 0, b'1', b'0', b'0', 'admin', NOW(), 'admin', NOW(), b'0'
+SELECT 6004, '房间管理', 'studyroom:manage:query', 2, 20, 6000, 'manage', 'ep:setting', 'studyroom/manage/index', 'StudyRoomManage', 0, b'1', b'0', b'0', 'admin', NOW(), 'admin', NOW(), b'0'
 WHERE NOT EXISTS (SELECT 1 FROM `system_menu` WHERE id = 6004);
 
 INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `sort`, `parent_id`, `path`, `icon`, `component`, `component_name`, `status`, `visible`, `keep_alive`, `always_show`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
-SELECT 6005, '平台数据', 'statistics:platform:query', 2, 50, 6000, 'platform', 'ep:data-line', 'statistics/platform/index', 'PlatformStatistics', 0, b'1', b'0', b'0', 'admin', NOW(), 'admin', NOW(), b'0'
+SELECT 6005, '平台数据', 'statistics:platform:query', 2, 50, 6000, 'platform', 'ep:data-line', 'statistics/platform/index', 'PlatformStatistics', 0, b'1', b'0', b'0', 'admin', NOW(), 'admin', NOW(), b'1'
 WHERE NOT EXISTS (SELECT 1 FROM `system_menu` WHERE id = 6005);
 
 -- 管理动作按钮
@@ -261,9 +261,14 @@ INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `sort`, `parent_i
 SELECT 6006, '关闭/开启自习室', 'studyroom:manage:close', 3, 10, 6004, '', '', NULL, NULL, 0, b'1', b'0', b'0', 'admin', NOW(), 'admin', NOW(), b'0'
 WHERE NOT EXISTS (SELECT 1 FROM `system_menu` WHERE id = 6006);
 
+-- 顶层入口：数据统计
+INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `sort`, `parent_id`, `path`, `icon`, `component`, `component_name`, `status`, `visible`, `keep_alive`, `always_show`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
+SELECT 6020, '数据统计', 'statistics:platform:query', 2, 20, 0, '/data-statistics', 'ep:data-line', 'statistics/platform/index', 'PlatformStatistics', 0, b'1', b'0', b'0', 'admin', NOW(), 'admin', NOW(), b'0'
+WHERE NOT EXISTS (SELECT 1 FROM `system_menu` WHERE id = 6020);
+
 -- 根目录：用户管理
 INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `sort`, `parent_id`, `path`, `icon`, `component`, `component_name`, `status`, `visible`, `keep_alive`, `always_show`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
-SELECT 6100, '用户管理', '', 1, 20, 0, '/user-manage', 'ep:user', 'Layout', 'UserManage', 0, b'1', b'1', b'1', 'admin', NOW(), 'admin', NOW(), b'0'
+SELECT 6100, '用户管理', '', 1, 30, 0, '/user-manage', 'ep:user', 'Layout', 'UserManage', 0, b'1', b'1', b'1', 'admin', NOW(), 'admin', NOW(), b'0'
 WHERE NOT EXISTS (SELECT 1 FROM `system_menu` WHERE id = 6100);
 
 INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `sort`, `parent_id`, `path`, `icon`, `component`, `component_name`, `status`, `visible`, `keep_alive`, `always_show`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
@@ -278,11 +283,291 @@ INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `sort`, `parent_i
 SELECT 6103, '解封用户', 'studyroom:user-management:unban', 3, 30, 6101, '', '', NULL, NULL, 0, b'1', b'0', b'0', 'admin', NOW(), 'admin', NOW(), b'0'
 WHERE NOT EXISTS (SELECT 1 FROM `system_menu` WHERE id = 6103);
 
+-- 顶层入口：座位预约
+INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `sort`, `parent_id`, `path`, `icon`, `component`, `component_name`, `status`, `visible`, `keep_alive`, `always_show`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
+SELECT 6013, '座位预约', 'studyroom:reservation:list', 2, 40, 0, '/studyroom-reservation', 'ep:ticket', 'studyroom/reservation/index', 'SeatReservationManage', 0, b'1', b'1', b'0', 'admin', NOW(), 'admin', NOW(), b'0'
+WHERE NOT EXISTS (SELECT 1 FROM `system_menu` WHERE id = 6013);
+
+-- 修正已存在菜单的层级/路径，避免旧库保留错误树结构
+UPDATE `system_menu`
+SET `name` = '自习室管理',
+    `permission` = '',
+    `type` = 1,
+    `sort` = 10,
+    `parent_id` = 0,
+    `path` = '/studyroom',
+    `icon` = 'ep:office-building',
+    `component` = 'Layout',
+    `component_name` = 'StudyRoom',
+    `status` = 0,
+    `visible` = b'1',
+    `keep_alive` = b'1',
+    `always_show` = b'1',
+    `deleted` = b'0',
+    `updater` = 'admin',
+    `update_time` = NOW()
+WHERE `id` = 6000;
+
+UPDATE `system_menu`
+SET `name` = '自习室大厅',
+    `permission` = 'studyroom:room:query',
+    `type` = 2,
+    `sort` = 10,
+    `parent_id` = 6000,
+    `path` = 'hall',
+    `icon` = 'ep:list',
+    `component` = 'studyroom/hall/index',
+    `component_name` = 'StudyRoomHall',
+    `status` = 0,
+    `visible` = b'1',
+    `keep_alive` = b'1',
+    `always_show` = b'0',
+    `deleted` = b'0',
+    `updater` = 'admin',
+    `update_time` = NOW()
+WHERE `id` = 6001;
+
+UPDATE `system_menu`
+SET `name` = '学习统计',
+    `permission` = 'studyroom:statistics:query',
+    `type` = 2,
+    `sort` = 20,
+    `parent_id` = 6000,
+    `path` = 'statistics',
+    `icon` = 'ep:data-analysis',
+    `component` = 'studyroom/statistics/index',
+    `component_name` = 'StudyStatistics',
+    `status` = 0,
+    `visible` = b'1',
+    `keep_alive` = b'1',
+    `always_show` = b'0',
+    `deleted` = b'1',
+    `updater` = 'admin',
+    `update_time` = NOW()
+WHERE `id` = 6002;
+
+UPDATE `system_menu`
+SET `name` = '座位预约',
+    `permission` = 'studyroom:reservation:list',
+    `type` = 2,
+    `sort` = 30,
+    `parent_id` = 6000,
+    `path` = 'reservation',
+    `icon` = 'ep:ticket',
+    `component` = 'studyroom/reservation/index',
+    `component_name` = 'SeatReservation',
+    `status` = 0,
+    `visible` = b'1',
+    `keep_alive` = b'1',
+    `always_show` = b'0',
+    `deleted` = b'1',
+    `updater` = 'admin',
+    `update_time` = NOW()
+WHERE `id` = 6003;
+
+UPDATE `system_menu`
+SET `name` = '房间管理',
+    `permission` = 'studyroom:manage:query',
+    `type` = 2,
+    `sort` = 20,
+    `parent_id` = 6000,
+    `path` = 'manage',
+    `icon` = 'ep:setting',
+    `component` = 'studyroom/manage/index',
+    `component_name` = 'StudyRoomManage',
+    `status` = 0,
+    `visible` = b'1',
+    `keep_alive` = b'0',
+    `always_show` = b'0',
+    `deleted` = b'0',
+    `updater` = 'admin',
+    `update_time` = NOW()
+WHERE `id` = 6004;
+
+UPDATE `system_menu`
+SET `name` = '平台数据',
+    `permission` = 'statistics:platform:query',
+    `type` = 2,
+    `sort` = 50,
+    `parent_id` = 6000,
+    `path` = 'platform',
+    `icon` = 'ep:data-line',
+    `component` = 'statistics/platform/index',
+    `component_name` = 'PlatformStatistics',
+    `status` = 0,
+    `visible` = b'1',
+    `keep_alive` = b'0',
+    `always_show` = b'0',
+    `deleted` = b'1',
+    `updater` = 'admin',
+    `update_time` = NOW()
+WHERE `id` = 6005;
+
+UPDATE `system_menu`
+SET `name` = '关闭/开启自习室',
+    `permission` = 'studyroom:manage:close',
+    `type` = 3,
+    `sort` = 10,
+    `parent_id` = 6004,
+    `path` = '',
+    `icon` = '',
+    `component` = NULL,
+    `component_name` = NULL,
+    `status` = 0,
+    `visible` = b'1',
+    `keep_alive` = b'0',
+    `always_show` = b'0',
+    `deleted` = b'0',
+    `updater` = 'admin',
+    `update_time` = NOW()
+WHERE `id` = 6006;
+
+UPDATE `system_menu`
+SET `name` = '用户管理',
+    `permission` = '',
+    `type` = 1,
+    `sort` = 30,
+    `parent_id` = 0,
+    `path` = '/user-manage',
+    `icon` = 'ep:user',
+    `component` = 'Layout',
+    `component_name` = 'UserManage',
+    `status` = 0,
+    `visible` = b'1',
+    `keep_alive` = b'1',
+    `always_show` = b'1',
+    `deleted` = b'0',
+    `updater` = 'admin',
+    `update_time` = NOW()
+WHERE `id` = 6100;
+
+UPDATE `system_menu`
+SET `name` = '数据统计',
+    `permission` = 'statistics:platform:query',
+    `type` = 2,
+    `sort` = 20,
+    `parent_id` = 0,
+    `path` = '/data-statistics',
+    `icon` = 'ep:data-line',
+    `component` = 'statistics/platform/index',
+    `component_name` = 'PlatformStatistics',
+    `status` = 0,
+    `visible` = b'1',
+    `keep_alive` = b'0',
+    `always_show` = b'0',
+    `deleted` = b'0',
+    `updater` = 'admin',
+    `update_time` = NOW()
+WHERE `id` = 6020;
+
+UPDATE `system_menu`
+SET `name` = '座位预约',
+    `permission` = 'studyroom:reservation:list',
+    `type` = 2,
+    `sort` = 40,
+    `parent_id` = 0,
+    `path` = '/studyroom-reservation',
+    `icon` = 'ep:ticket',
+    `component` = 'studyroom/reservation/index',
+    `component_name` = 'SeatReservationManage',
+    `status` = 0,
+    `visible` = b'1',
+    `keep_alive` = b'1',
+    `always_show` = b'0',
+    `deleted` = b'0',
+    `updater` = 'admin',
+    `update_time` = NOW()
+WHERE `id` = 6013;
+
+UPDATE `system_menu`
+SET `name` = '用户列表',
+    `permission` = 'studyroom:user-management:query',
+    `type` = 2,
+    `sort` = 10,
+    `parent_id` = 6100,
+    `path` = 'list',
+    `icon` = 'ep:user',
+    `component` = 'system/user/index',
+    `component_name` = 'UserManageList',
+    `status` = 0,
+    `visible` = b'1',
+    `keep_alive` = b'0',
+    `always_show` = b'0',
+    `deleted` = b'0',
+    `updater` = 'admin',
+    `update_time` = NOW()
+WHERE `id` = 6101;
+
+UPDATE `system_menu`
+SET `name` = '封禁用户',
+    `permission` = 'studyroom:user-management:ban',
+    `type` = 3,
+    `sort` = 20,
+    `parent_id` = 6101,
+    `path` = '',
+    `icon` = '',
+    `component` = NULL,
+    `component_name` = NULL,
+    `status` = 0,
+    `visible` = b'1',
+    `keep_alive` = b'0',
+    `always_show` = b'0',
+    `deleted` = b'0',
+    `updater` = 'admin',
+    `update_time` = NOW()
+WHERE `id` = 6102;
+
+UPDATE `system_menu`
+SET `name` = '解封用户',
+    `permission` = 'studyroom:user-management:unban',
+    `type` = 3,
+    `sort` = 30,
+    `parent_id` = 6101,
+    `path` = '',
+    `icon` = '',
+    `component` = NULL,
+    `component_name` = NULL,
+    `status` = 0,
+    `visible` = b'1',
+    `keep_alive` = b'0',
+    `always_show` = b'0',
+    `deleted` = b'0',
+    `updater` = 'admin',
+    `update_time` = NOW()
+WHERE `id` = 6103;
+
+-- 清理历史遗留的重复菜单，避免后台侧边栏同时出现旧根菜单和新目录菜单
+UPDATE `system_menu`
+SET `deleted` = b'1',
+    `updater` = 'admin',
+    `update_time` = NOW()
+WHERE `id` IN (6010, 6012);
+
+-- 兜底修正：如果旧库曾把 6000 占成别的菜单，强制恢复为“自习室管理”目录
+UPDATE `system_menu`
+SET `name` = '自习室管理',
+    `permission` = '',
+    `type` = 1,
+    `sort` = 10,
+    `parent_id` = 0,
+    `path` = '/studyroom',
+    `icon` = 'ep:office-building',
+    `component` = 'Layout',
+    `component_name` = 'StudyRoom',
+    `status` = 0,
+    `visible` = b'1',
+    `keep_alive` = b'1',
+    `always_show` = b'1',
+    `deleted` = b'0',
+    `updater` = 'admin',
+    `update_time` = NOW()
+WHERE `id` = 6000;
+
 -- 为管理员角色授权以上菜单
 INSERT INTO `system_role_menu` (`role_id`, `menu_id`, `creator`, `create_time`, `updater`, `update_time`, `deleted`, `tenant_id`)
 SELECT r.id, m.id, 'admin', NOW(), 'admin', NOW(), b'0', r.tenant_id
 FROM `system_role` r
-JOIN (SELECT 6000 AS id UNION ALL SELECT 6001 UNION ALL SELECT 6002 UNION ALL SELECT 6003 UNION ALL SELECT 6004 UNION ALL SELECT 6005 UNION ALL SELECT 6006 UNION ALL SELECT 6100 UNION ALL SELECT 6101 UNION ALL SELECT 6102 UNION ALL SELECT 6103) m
+JOIN (SELECT 6000 AS id UNION ALL SELECT 6001 UNION ALL SELECT 6004 UNION ALL SELECT 6006 UNION ALL SELECT 6020 UNION ALL SELECT 6100 UNION ALL SELECT 6101 UNION ALL SELECT 6102 UNION ALL SELECT 6103 UNION ALL SELECT 6013) m
 WHERE r.deleted = b'0' AND (r.code = 'super_admin' OR r.type = 1)
 ON DUPLICATE KEY UPDATE updater = VALUES(updater), update_time = VALUES(update_time), deleted = b'0';
 
