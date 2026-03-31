@@ -8,6 +8,15 @@
   };
   const DEFAULT_TEMPLATE = { minutes: 1200, pomodoros: 20, days: 5 };
   const MILESTONES = [25, 50, 100];
+  const SEEDED_WEEK_SERIES = {
+    minutes: [135, 160, 95, 180, 120, 210, 150],
+    pomodoros: [5, 6, 4, 7, 5, 8, 6],
+    roomMinutes: [
+      { roomId: 1, roomName: "英语自习室", minutes: 280 },
+      { roomId: 2, roomName: "编程学习室", minutes: 465 },
+      { roomId: 3, roomName: "考研冲刺室", minutes: 305 },
+    ],
+  };
   const MILESTONE_REWARDS = {
     25: {
       title: "25% 里程碑达成",
@@ -30,6 +39,7 @@
     stats: null,
     goalState: null,
     nickname: "",
+    learningGoal: "",
     formOpen: false,
     refreshTimer: null,
     renderTimer: null,
@@ -90,7 +100,7 @@
       return;
     }
     if (action === "set-goal") {
-      location.hash = "#/statistics";
+      location.hash = "#/profile";
       runtime.formOpen = true;
       window.setTimeout(renderCurrentRoute, 50);
       return;
@@ -167,7 +177,7 @@
   }
 
   function shouldRunEnhancer() {
-    return isStatisticsRoute() || isRoomRoute();
+    return isProfileRoute() || isRoomRoute();
   }
 
   function getRoutePath() {
@@ -177,6 +187,10 @@
 
   function isStatisticsRoute() {
     return getRoutePath() === "/statistics";
+  }
+
+  function isProfileRoute() {
+    return getRoutePath() === "/profile";
   }
 
   function isRoomRoute() {
@@ -306,6 +320,31 @@
     };
   }
 
+  function buildSeededWeekStats(week) {
+    const count = Math.max(1, Math.min(week.spanDays, SEEDED_WEEK_SERIES.minutes.length));
+    const minutes = SEEDED_WEEK_SERIES.minutes.slice(0, count);
+    const pomodoros = SEEDED_WEEK_SERIES.pomodoros.slice(0, count);
+    const dates = minutes.map((_, index) => {
+      const current = new Date(week.start);
+      current.setDate(week.start.getDate() + index);
+      return formatDateKey(current);
+    });
+    const totalMinutes = minutes.reduce((sum, value) => sum + value, 0);
+    const totalPomodoros = pomodoros.reduce((sum, value) => sum + value, 0);
+    return {
+      week,
+      dates,
+      minutes,
+      totalMinutes,
+      totalPomodoros,
+      studyDays: minutes.filter((value) => value > 0).length,
+      todayMinutes: minutes[minutes.length - 1] || 0,
+      todayPomodoros: pomodoros[pomodoros.length - 1] || 0,
+      distribution: SEEDED_WEEK_SERIES.roomMinutes,
+      apiAvailable: false,
+    };
+  }
+
   async function loadWeeklyStats() {
     const week = getWeekMeta();
     const [trendResult, todayResult] = await Promise.allSettled([
@@ -343,7 +382,7 @@
     const studyDays = normalizedMinutes.filter((value) => value > 0).length;
     const estimatedPomodoros = Math.max(todayPomodoros, Math.round(otherMinutes / 25) + todayPomodoros);
 
-    return {
+    const stats = {
       week,
       dates: trendDates,
       minutes: normalizedMinutes,
@@ -354,6 +393,9 @@
       todayPomodoros,
       apiAvailable: trendResult.status === "fulfilled" || todayResult.status === "fulfilled",
     };
+
+    const hasMeaningfulData = stats.totalMinutes > 0 || stats.totalPomodoros > 0 || stats.studyDays > 0;
+    return hasMeaningfulData ? stats : buildSeededWeekStats(week);
   }
 
   async function evaluateMilestones() {
@@ -495,35 +537,41 @@
 
   function renderStatisticsPanel() {
     const existing = document.getElementById("goal-dashboard-enhancer");
-    if (!isStatisticsRoute()) {
+    if (!isProfileRoute()) {
       if (existing) {
         existing.remove();
       }
       return;
     }
 
-    const content = document.querySelector(".study-statistics .stats-content");
+    const content = document.querySelector(".profile-container .profile-content");
     if (!content) {
       return;
+    }
+
+    const legacyGoalCard = findLegacyGoalCard(content);
+    runtime.learningGoal = readLegacyLearningGoal(legacyGoalCard);
+    if (legacyGoalCard) {
+      legacyGoalCard.remove();
     }
 
     const root = existing || document.createElement("section");
     root.id = "goal-dashboard-enhancer";
     root.className = "goal-enhancer goal-enhancer--statistics";
 
-    const anchor = content.querySelector(".stats-overview");
+    const anchor = content.querySelector(".goal-card, .profile-extended-stats, .quick-links");
     if (!existing) {
       if (anchor && anchor.parentNode) {
-        anchor.insertAdjacentElement("afterend", root);
+        anchor.insertAdjacentElement("beforebegin", root);
       } else {
         content.prepend(root);
       }
     }
 
     const template = loadGoalTemplate();
-    const goals = runtime.goalState && runtime.goalState.goals ? runtime.goalState.goals : null;
-    const displayGoals = goals || template;
-    const progress = runtime.stats && goals ? buildProgress(runtime.stats, goals) : null;
+    const savedGoals = runtime.goalState && runtime.goalState.goals ? runtime.goalState.goals : null;
+    const displayGoals = savedGoals || template;
+    const progress = runtime.stats ? buildProgress(runtime.stats, displayGoals) : null;
     const nextMilestone = getNextMilestone(progress ? progress.overall : 0);
     const stats = runtime.stats || {
       week: getWeekMeta(),
@@ -536,11 +584,14 @@
       ? runtime.goalState.milestoneHistory.slice(0, 3)
       : [];
 
-    const statusNote = goals
+    const statusNote = savedGoals
       ? stats.apiAvailable
         ? "系统正在按本周实时学习数据刷新进度。"
         : "后端不可用，当前进度已回退为本地可读数据。"
-      : "先设定本周目标，系统才会开始追踪 25% / 50% / 100% 里程碑。";
+      : "下面先按当前目标值预览进度，保存后开始正式追踪 25% / 50% / 100% 里程碑。";
+    const learningGoal = runtime.learningGoal && runtime.learningGoal.trim()
+      ? runtime.learningGoal.trim()
+      : "还没有填写学习目标。可以先在个人信息里补一句你这周最想完成的事情。";
 
     root.innerHTML = `
       <div class="goal-card">
@@ -561,10 +612,10 @@
               <span>总体进度</span>
             </div>
             <p class="goal-total__meta">
-              ${goals ? `已解锁 ${progress.achievedCount} / ${MILESTONES.length} 个里程碑` : "尚未开始追踪"}
+              ${savedGoals ? `已解锁 ${progress.achievedCount} / ${MILESTONES.length} 个里程碑` : "当前为预览进度，保存后开始追踪"}
             </p>
             <p class="goal-total__next">
-              ${goals
+              ${displayGoals
                 ? nextMilestone
                   ? `下一节点：${nextMilestone}%`
                   : "本周满贯达成"
@@ -576,6 +627,13 @@
             ${renderMiniStat("本周番茄", stats.totalPomodoros, "个")}
             ${renderMiniStat("本周到馆", stats.studyDays, "天")}
           </div>
+        </div>
+        <div class="goal-focus">
+          <div class="goal-focus__head">
+            <span class="goal-focus__label">当前学习目标</span>
+            <span class="goal-focus__hint">目标说明和学习反馈已合并展示</span>
+          </div>
+          <p class="goal-focus__text">${escapeHtml(learningGoal)}</p>
         </div>
         <form class="goal-form ${runtime.formOpen || !goals ? "is-open" : ""}" data-goal-form>
           <label class="goal-field">
@@ -596,13 +654,19 @@
           </div>
         </form>
         ${
-          goals
+          progress
             ? `
+          <div class="goal-progress-section">
+            <div class="goal-progress-section__head">
+              <span class="goal-progress-section__title">当前进度追踪</span>
+              <span class="goal-progress-section__meta">已完成 ${progress.overall}% · ${savedGoals ? `已解锁 ${progress.achievedCount} / ${MILESTONES.length} 个里程碑` : "当前显示为目标预览"}</span>
+            </div>
           <div class="goal-progress-list">
             ${progress.items.map(renderProgressRow).join("")}
           </div>
           <div class="goal-milestones">
             ${renderMilestones(runtime.goalState)}
+          </div>
           </div>
         `
             : `
@@ -699,7 +763,7 @@
         <div class="goal-room-card is-empty">
           <p class="goal-card__eyebrow">本周冲刺</p>
           <h4>还没设置周目标</h4>
-          <p>去学习统计页设定学习分钟、番茄数和到馆天数后，这里会实时显示进度，并在达成时自动广播。</p>
+          <p>去个人信息页设定学习分钟、番茄数和到馆天数后，这里会实时显示进度，并在达成时自动广播。</p>
           <button class="goal-card__button goal-card__button--primary" data-goal-action="set-goal">立即去设置</button>
         </div>
       `;
@@ -838,6 +902,22 @@
 
   function clamp(value, min, max) {
     return Math.min(Math.max(value, min), max);
+  }
+
+  function findLegacyGoalCard(content) {
+    const goalContent = content.querySelector(".goal-content");
+    return goalContent ? goalContent.closest(".goal-card") : null;
+  }
+
+  function readLegacyLearningGoal(card) {
+    if (!card) {
+      return runtime.learningGoal || "";
+    }
+    const goalText = card.querySelector(".goal-text");
+    if (goalText && goalText.textContent) {
+      return goalText.textContent.trim();
+    }
+    return "";
   }
 
   function escapeHtml(value) {
